@@ -40,9 +40,6 @@ async function robloxGET<T>(path: string, params?: URLSearchParams) {
 		url.search = params.toString();
 	}
 
-	console.log(url);
-	console.log(options);
-
 	return await fetch(url, options);
 }
 
@@ -67,6 +64,7 @@ async function robloxPOST<T>(path: string, body?: URLSearchParams): Promise<Robl
 		// Handle non-2xx responses
 		if (!response.ok) {
 			const errorData: RobloxError = await response.json();
+			errorData.status = response.status;
 			return { success: false, error: errorData };
 		}
 

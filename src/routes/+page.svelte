@@ -4,8 +4,8 @@
 
 <main class="h-screen w-screen">
 	<div class="flex h-full w-full items-center justify-center">
-		<a href="/api/auth" rel="external">
-			<Button variant="outline">Login</Button>
+		<a href="/app/data">
+			<Button variant="outline">Get started</Button>
 		</a>
 	</div>
 </main>

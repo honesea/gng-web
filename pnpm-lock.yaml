@@ -23,6 +23,9 @@ devDependencies:
   clsx:
     specifier: ^2.1.1
     version: 2.1.1
+  lucide-svelte:
+    specifier: ^0.469.0
+    version: 0.469.0(svelte@5.14.0)
   prettier:
     specifier: ^3.3.2
     version: 3.4.2
@@ -1112,6 +1115,14 @@ packages:
 
   /lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
+    dev: true
+
+  /lucide-svelte@0.469.0(svelte@5.14.0):
+    resolution: {integrity: sha512-PMIJ8jrFqVUsXJz4d1yfAQplaGhNOahwwkzbunha8DhpiD73xqX24n8dE1dPpUk3vcrdWVsHc1y/liHHotOnGQ==}
+    peerDependencies:
+      svelte: ^3 || ^4 || ^5.0.0-next.42
+    dependencies:
+      svelte: 5.14.0
     dev: true
 
   /magic-string@0.30.15:
