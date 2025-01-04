@@ -1,4 +1,5 @@
-import { authorize } from '$lib/server/roblox';
+import { AUTH_COOKIE_NAME } from '$lib/server/auth';
+import * as roblox from '$lib/server/roblox';
 import { error, redirect } from '@sveltejs/kit';
 
 export async function GET({ cookies, url }) {
@@ -11,14 +12,14 @@ export async function GET({ cookies, url }) {
 		throw error(500, 'Invalid OAuth authorization');
 	}
 
-	const authToken = await authorize(code);
+	const authToken = await roblox.token(code);
 
 	if (!authToken.success) {
 		throw error(authToken.error.status, authToken.error.error_description);
 	}
 
-	const cookie = JSON.stringify(authToken.data);
-	cookies.set('auth-token', cookie, { path: '/' });
+	const cookie = btoa(JSON.stringify(authToken.data));
+	cookies.set(AUTH_COOKIE_NAME, cookie, { path: '/' });
 
 	return redirect(303, destination);
 }

@@ -12,17 +12,51 @@ type RobloxError = {
 	error_description: string;
 };
 
-export async function authorize(oauth_code: string) {
-	return await robloxPOST<{
-		access_token: string;
-		token_type: string;
-		expires_in: number;
-		refresh_token: string;
-	}>(
+export type RobloxJWT = {
+	access_token: string;
+	refresh_token: string;
+	token_type: string;
+	expires_in: number;
+	id_token: string;
+	scope: string;
+};
+
+export async function token(code: string) {
+	return await robloxPOST<RobloxJWT>(
 		'/oauth/v1/token',
 		new URLSearchParams({
 			grant_type: 'authorization_code',
-			code: oauth_code
+			code
+		})
+	);
+}
+
+export async function token_refresh(refresh_token: string) {
+	return await robloxPOST<RobloxJWT>(
+		'/oauth/v1/token',
+		new URLSearchParams({
+			grant_type: 'refresh_token',
+			refresh_token
+		})
+	);
+}
+
+export async function token_introspect(token: string) {
+	return await robloxPOST<{
+		active: boolean;
+		jti?: string;
+		iss?: string;
+		token_type?: string;
+		client_id?: string;
+		aud?: string;
+		sub?: string;
+		scope?: string;
+		exp?: number;
+		iat?: number;
+	}>(
+		'/oauth/v1/token/introspect',
+		new URLSearchParams({
+			token
 		})
 	);
 }

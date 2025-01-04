@@ -7,7 +7,10 @@ export async function handle({ event, resolve }) {
 	const path = event.url.pathname;
 	const cookies = event.cookies;
 
-	if (path.startsWith('/app') && !validateToken(cookies)) {
+	if (path.startsWith('/app')) {
+		const valid = await validateToken(cookies);
+		if (valid) return await resolve(event);
+
 		const state = {
 			destination: path
 		};
@@ -23,6 +26,5 @@ export async function handle({ event, resolve }) {
 		return redirect(302, `${ROBLOX_API_URL}/oauth/v1/authorize?${params.toString()}`);
 	}
 
-	const response = await resolve(event);
-	return response;
+	return await resolve(event);
 }
