@@ -22,7 +22,7 @@ export type RobloxJWT = {
 };
 
 export async function token(code: string) {
-	return await robloxPOST<RobloxJWT>(
+	return await robloxAuthPOST<RobloxJWT>(
 		'/oauth/v1/token',
 		new URLSearchParams({
 			grant_type: 'authorization_code',
@@ -32,7 +32,7 @@ export async function token(code: string) {
 }
 
 export async function token_refresh(refresh_token: string) {
-	return await robloxPOST<RobloxJWT>(
+	return await robloxAuthPOST<RobloxJWT>(
 		'/oauth/v1/token',
 		new URLSearchParams({
 			grant_type: 'refresh_token',
@@ -42,7 +42,7 @@ export async function token_refresh(refresh_token: string) {
 }
 
 export async function token_introspect(token: string) {
-	return await robloxPOST<{
+	return await robloxAuthPOST<{
 		active: boolean;
 		jti?: string;
 		iss?: string;
@@ -61,23 +61,36 @@ export async function token_introspect(token: string) {
 	);
 }
 
-async function robloxGET<T>(path: string, params?: URLSearchParams) {
-	let url = new URL(path, ROBLOX_API_URL);
-	const options: RequestInit = {
+export async function token_revoke(token: string) {
+	return await robloxAuthPOST(
+		'/oauth/v1/token/revoke',
+		new URLSearchParams({
+			token
+		})
+	);
+}
+
+export async function user_info(user_access_token: string) {
+	let url = new URL('/oauth/v1/userinfo', ROBLOX_API_URL);
+	let options: RequestInit = {
 		method: 'GET',
 		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded'
+			Authorization: `Bearer ${user_access_token}`
 		}
 	};
 
-	if (!!params) {
-		url.search = params.toString();
-	}
-
-	return await fetch(url, options);
+	return await request<{
+		sub: string;
+		name: string;
+		nickname: string;
+		preferred_username: string;
+		created_at: number;
+		profile: string;
+		picture: string;
+	}>(url, options);
 }
 
-async function robloxPOST<T>(path: string, body?: URLSearchParams): Promise<RobloxResponse<T>> {
+async function robloxAuthPOST<T>(path: string, body?: URLSearchParams): Promise<RobloxResponse<T>> {
 	let url = new URL(path, ROBLOX_API_URL);
 	let options: RequestInit = {
 		method: 'POST',
@@ -91,6 +104,10 @@ async function robloxPOST<T>(path: string, body?: URLSearchParams): Promise<Robl
 		options.body = body;
 	}
 
+	return await request<T>(url, options);
+}
+
+async function request<T>(url: URL, options: RequestInit): Promise<RobloxResponse<T>> {
 	try {
 		// Perform the fetch request
 		const response = await fetch(url, options);
@@ -101,6 +118,9 @@ async function robloxPOST<T>(path: string, body?: URLSearchParams): Promise<Robl
 			errorData.status = response.status;
 			return { success: false, error: errorData };
 		}
+
+		// Handle successful but empty response
+		if (!Number(response.headers.get('Content-Length'))) return { success: true, data: {} as T };
 
 		// Handle successful response
 		const data: T = await response.json();
